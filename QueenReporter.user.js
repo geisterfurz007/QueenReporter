@@ -4,7 +4,7 @@
 // @version      0.2
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
-// @include		https://stackoverflow.com/*
+// @include	 https://stackoverflow.com/*
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
@@ -132,7 +132,7 @@ function getOptions() {
 	return [
 		{
 			report: "tp",
-			desc: "True Positive"
+			desc: "Rude / Abusive"
 		},
 		{
 			report: "nc",
@@ -140,7 +140,7 @@ function getOptions() {
 		},
 		{
 			report: "fp",
-			desc: "False positive"
+			desc: "Constructive"
 		},
 		{
 			report: "sk",
