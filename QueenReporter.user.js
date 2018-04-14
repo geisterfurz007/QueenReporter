@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.1
+// @version      0.2
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include		https://stackoverflow.com/*
@@ -102,8 +102,8 @@ function getQueenFeedbackElement() {
 	let dl = document.createElement("dl");
 	dl.style = "margin: 0px; z-index: 1; position: absolute; white-space: nowrap; background: rgb(255, 255, 255) none repeat scroll 0% 0%; padding: 5px; border: 1px solid rgb(159, 166, 173); box-shadow: rgba(36, 39, 41, 0.3) 0px 2px 4px; cursor: default;";
 
-	let results = ["tp", "nc", "fp", "sk"];
-	results.forEach(r => dl.appendChild(getDDWithText(r)));
+	let options = getOptions();
+	options.forEach(o => dl.appendChild(getDDWithText(o.report, o.desc)));
 
 	anchor.appendChild(dl);
 
@@ -111,20 +111,40 @@ function getQueenFeedbackElement() {
 	return div;
 }
 
-function getDDWithText(text) {
+function getDDWithText(report, description) {
 	let result = document.createElement("dd");
 	result.style = "padding-left: 5px; padding-right: 5px;";
 
 	let anchor = document.createElement("a");
 	anchor.style = "display: inline-block; margin-top: 5px; width: auto;";
-	anchor.innerText = text;
+	anchor.innerText = description;
 
 	anchor.addEventListener("click", ev => {
 		let cId = $(ev.target).parents(".comment").attr("data-comment-id");
-		sendChatMessage(feedbackString + getCommentUrl(cId) + " " + text);
+		sendChatMessage(feedbackString + getCommentUrl(cId) + " " + report);
 	});
 
 	result.appendChild(anchor);
 	return result;
 }
 
+function getOptions() {
+	return [
+		{
+			report: "tp",
+			desc: "True Positive"
+		},
+		{
+			report: "nc",
+			desc: "Not contructive / No longer needed"
+		},
+		{
+			report: "fp",
+			desc: "False positive"
+		},
+		{
+			report: "sk",
+			desc: "Hard to classify"
+		}
+	];	
+}
