@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
-// @include		 https://stackoverflow.com/*
+// @include		https://stackoverflow.com/*
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
@@ -12,7 +12,7 @@
 const room = 111347;
 const test_room = 167908;
 
-const feedbackString = "@Queen feedback ";
+const feedbackString = "@ Queen feedback ";
 
 (function() {
 
