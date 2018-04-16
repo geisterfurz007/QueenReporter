@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.2.2
+// @version      0.3
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -30,13 +30,19 @@ const feedbackString = "@Queen feedback ";
 
 	GM_addStyle(".comment-queen-feedback-icon::after {content: \"🐝\"} .comment-queen-feedback-icon dl {display: inline-block} .comment-queen-feedback-icon.queen-popup-closed dl {display:none}");
 
-	//Listener to react to the opened comment flagging popup
+    addQuickFeedback();
+
+    //Listener to react to the opened comment flagging popup
 	addXHRListener(checkPopup);
-
-	//Quickfeedback
-	$(".comment-actions > div:nth-child(2)").after(getQueenFeedbackElement);
-
+	
+	//When comments are loaded because a new one is added, there are more than a few comments or a comment was posted at the bottom of a longer thread, the whole comment section is reloaded causing the icon to be removed
+	//Because of that we need another request listener that checks when the comments for a certain post are requested so they can be added after that.
+    addXHRListener(checkCommentReload);
 })();
+
+function addQuickFeedback() {
+    	$(".comment-actions > div:nth-child(2)").after(getQueenFeedbackElement);
+}
 
 function addXHRListener(callback) {
 	let open = XMLHttpRequest.prototype.open;
@@ -52,6 +58,13 @@ function checkPopup(xhr) {
 	if (matches !== null && xhr.status === 200) {
 		$(".popup-submit").on("click", checkReport);
 	}
+}
+
+function checkCommentReload(xhr) {
+    let matches = /posts\/\d+\/comments\?_=\d+/.exec(xhr.responseURL);
+    if (matches !== null && xhr.status === 200) {
+        addQuickFeedback();
+    }
 }
 
 function checkReport(event) { //event just in case it might be needed in the future
