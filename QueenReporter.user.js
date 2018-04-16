@@ -14,7 +14,7 @@
 const room = 111347;
 const test_room = 167908;
 
-const feedbackString = "@ Queen feedback ";
+const feedbackString = "@Queen feedback ";
 
 (function() {
 
