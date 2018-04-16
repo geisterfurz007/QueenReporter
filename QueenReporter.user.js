@@ -76,12 +76,12 @@ function getCommentUrl(commentId) {
 function sendChatMessage(msg) {
   GM.xmlHttpRequest({
     method: 'GET',
-    url: 'https://chat.stackoverflow.com/rooms/' + test_room,
+    url: 'https://chat.stackoverflow.com/rooms/' + room,
     onload: function (response) {
       var fkey = response.responseText.match(/hidden" value="([\dabcdef]{32})/)[1];
       GM.xmlHttpRequest({
         method: 'POST',
-        url: 'https://chat.stackoverflow.com/chats/' + test_room + '/messages/new',
+        url: 'https://chat.stackoverflow.com/chats/' + room + '/messages/new',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: 'text=' + encodeURIComponent(msg.trim()) + '&fkey=' + fkey,
         onload: function (r) {
