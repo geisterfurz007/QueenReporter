@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.3
+// @version      0.3.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -40,8 +40,10 @@ const feedbackString = "@Queen feedback ";
     addXHRListener(checkCommentReload);
 })();
 
-function addQuickFeedback() {
-    	$(".comment-actions > div:nth-child(2)").after(getQueenFeedbackElement);
+function addQuickFeedback(preSelector) {
+	preSelector = preSelector || "";
+	preSelector = preSelector.trim() + " ";
+    $(preSelector + ".comment-actions > div:nth-child(2)").after(getQueenFeedbackElement);
 }
 
 function addXHRListener(callback) {
@@ -61,9 +63,12 @@ function checkPopup(xhr) {
 }
 
 function checkCommentReload(xhr) {
-    let matches = /posts\/\d+\/comments\?_=\d+/.exec(xhr.responseURL);
+    let matches = /posts\/(\d+)\/comments\?_=\d+/.exec(xhr.responseURL);
     if (matches !== null && xhr.status === 200) {
-        addQuickFeedback();
+		let postId = matches[1];
+		let post = document.getElementById("answer-" + postId) || document.getElementById("question");
+		let preSelector = "#" + post.getAttribute("id");
+        addQuickFeedback(preSelector);
     }
 }
 
