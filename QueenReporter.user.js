@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.3.1
+// @version      0.4
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -79,9 +79,11 @@ function checkReport(event) { //event just in case it might be needed in the fut
 		let link = getCommentUrl(id);
 		let flagName = results[0].innerHTML;
 		if (flagName.indexOf("rude") > -1) {
-			sendChatMessage(feedbackString + link + " tp");
+			// sendChatMessage(feedbackString + link + " tp");
+			validateFeedbackRequired(link, "tp");
 		} else if (flagName.indexOf("no longer") > -1) {
-			sendChatMessage(feedbackString + link + " nc");
+			// sendChatMessage(feedbackString + link + " nc");
+			validateFeedbackRequired(link, "nc");
 		}
 	}
 }
@@ -89,6 +91,29 @@ function checkReport(event) { //event just in case it might be needed in the fut
 function getCommentUrl(commentId) {
 	let id = "#comment-"+commentId;
 	return $(id + " .comment-link").prop("href");
+}
+
+function validateFeedbackRequired(commentUrl, feedback) {
+	
+	function sendFeedback() {
+		sendChatMessage(feedbackString + commentUrl + " " + feedback);
+	}
+	
+	if (feedback === "tp") 
+		return sendFeedback();
+	
+	GM.xmlHttpRequest({
+		method: "GET",
+		url: "http://api.higgs.sobotics.org/Reviewer/Check?contentUrl=" + encodeURIComponent(commentUrl),
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//		data: "contentUrl=" + encodeURIComponent(commentUrl),
+		onload: function (r) {
+			let reports = JSON.parse(r.responseText);
+			if (reports.length > 0 && reports.some(report => report.dashboard === "Hydrant")) {
+				sendFeedback();
+			}
+		}
+	});
 }
 
 function sendChatMessage(msg) {
@@ -141,7 +166,8 @@ function getDDWithText(report, description) {
 
 	anchor.addEventListener("click", ev => {
 		let cId = $(ev.target).parents(".comment").attr("data-comment-id");
-		sendChatMessage(feedbackString + getCommentUrl(cId) + " " + report);
+		validateFeedbackRequired(getCommentUrl(cId), report);
+		//sendChatMessage(feedbackString + getCommentUrl(cId) + " " + report);
 	});
 
 	result.appendChild(anchor);
