@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.4
+// @version      0.4.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -30,11 +30,19 @@ const feedbackString = "@Queen feedback ";
 
 	GM_addStyle(".comment-queen-feedback-icon::after {content: \"🐝\"} .comment-queen-feedback-icon dl {display: inline-block} .comment-queen-feedback-icon.queen-popup-closed dl {display:none}");
 
+	window.addEventListener("click", ev => {
+        console.log(ev.target.classList.contains("comment-queen-feedback-icon"));
+        if (ev.target.classList.contains("comment-queen-feedback-icon")) {
+            ev.target.classList.toggle("queen-popup-closed");
+        } else {
+            $(".comment-queen-feedback-icon").addClass("queen-popup-closed");
+        }
+    });
     addQuickFeedback();
 
     //Listener to react to the opened comment flagging popup
 	addXHRListener(checkPopup);
-	
+
 	//When comments are loaded because a new one is added, there are more than a few comments or a comment was posted at the bottom of a longer thread, the whole comment section is reloaded causing the icon to be removed
 	//Because of that we need another request listener that checks when the comments for a certain post are requested so they can be added after that.
     addXHRListener(checkCommentReload);
@@ -94,14 +102,14 @@ function getCommentUrl(commentId) {
 }
 
 function validateFeedbackRequired(commentUrl, feedback) {
-	
+
 	function sendFeedback() {
 		sendChatMessage(feedbackString + commentUrl + " " + feedback);
 	}
-	
-	if (feedback === "tp") 
+
+	if (feedback === "tp")
 		return sendFeedback();
-	
+
 	GM.xmlHttpRequest({
 		method: "GET",
 		url: "http://api.higgs.sobotics.org/Reviewer/Check?contentUrl=" + encodeURIComponent(commentUrl),
@@ -140,9 +148,9 @@ function getQueenFeedbackElement() {
 	let anchor = document.createElement("a");
 	anchor.classList.add("comment-queen-feedback-icon", "queen-popup-closed");
 
-	//Create popup
-	anchor.addEventListener("mouseover", () => anchor.classList.remove("queen-popup-closed"));
-	anchor.addEventListener("mouseout", () => anchor.classList.add("queen-popup-closed"));
+	//For onHover; I might add a checkbox somewhere where one can choose to have it onHover/onClick
+	//anchor.addEventListener("mouseover", () => anchor.classList.add("queen-popup-closed"));
+	//anchor.addEventListener("mouseout", () => anchor.classList.add("queen-popup-closed"));
 
 	let dl = document.createElement("dl");
 	dl.style = "margin: 0px; z-index: 1; position: absolute; white-space: nowrap; background: rgb(255, 255, 255) none repeat scroll 0% 0%; padding: 5px; border: 1px solid rgb(159, 166, 173); box-shadow: rgba(36, 39, 41, 0.3) 0px 2px 4px; cursor: default;";
@@ -192,5 +200,5 @@ function getOptions() {
 			report: "sk",
 			desc: "Hard to classify"
 		}
-	];	
+	];
 }
