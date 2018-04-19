@@ -8,7 +8,7 @@ Follow the browser-specific instructions below. If you installed it correctly, a
 
 ![](https://i.imgur.com/BodGYct.jpg)
 
-When you hover over it, you can give a quick feedback in the popup. This will NOT flag the post accordingly!
+When you click on it, you can give a quick feedback in the popup. This will NOT flag the post accordingly!
 
 ![](https://i.imgur.com/p4q0Zks.jpg)
 
