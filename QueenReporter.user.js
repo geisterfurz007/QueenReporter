@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.4.1
+// @version      0.5
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -28,7 +28,7 @@ const feedbackString = "@Queen feedback ";
 		GM.xmlHttpRequest = GM_xmlhttpRequest;
 	}
 
-	GM_addStyle(".comment-queen-feedback-icon::after {content: \"🐝\"} .comment-queen-feedback-icon dl {display: inline-block} .comment-queen-feedback-icon.queen-popup-closed dl {display:none}");
+	GM_addStyle(".comment-queen-feedback-icon::after {content: \"🐝\"} .comment-queen-feedback-icon.queen-feedback-sent::after {content: \"🍯\"} .comment-queen-feedback-icon dl {display: inline-block} .comment-queen-feedback-icon.queen-popup-closed dl {display:none}");
 
 	window.addEventListener("click", ev => {
         console.log(ev.target.classList.contains("comment-queen-feedback-icon"));
@@ -88,10 +88,10 @@ function checkReport(event) { //event just in case it might be needed in the fut
 		let flagName = results[0].innerHTML;
 		if (flagName.indexOf("rude") > -1) {
 			// sendChatMessage(feedbackString + link + " tp");
-			validateFeedbackRequired(link, "tp");
+			validateFeedbackRequired(link, "tp", id);
 		} else if (flagName.indexOf("no longer") > -1) {
 			// sendChatMessage(feedbackString + link + " nc");
-			validateFeedbackRequired(link, "nc");
+			validateFeedbackRequired(link, "nc", id);
 		}
 	}
 }
@@ -101,10 +101,10 @@ function getCommentUrl(commentId) {
 	return $(id + " .comment-link").prop("href");
 }
 
-function validateFeedbackRequired(commentUrl, feedback) {
+function validateFeedbackRequired(commentUrl, feedback, commentId) {
 
 	function sendFeedback() {
-		sendChatMessage(feedbackString + commentUrl + " " + feedback);
+		sendChatMessage(feedbackString + commentUrl + " " + feedback, r => handleResponse(r, commentId));
 	}
 
 	if (feedback === "tp")
@@ -120,11 +120,14 @@ function validateFeedbackRequired(commentUrl, feedback) {
 			if (reports.length > 0 && reports.some(report => report.dashboard === "Hydrant")) {
 				sendFeedback();
 			}
+			else {
+				displayToaster("Feedback not needed.", "#E4EB31");
+			}
 		}
 	});
 }
 
-function sendChatMessage(msg) {
+function sendChatMessage(msg, cb) {
   GM.xmlHttpRequest({
     method: 'GET',
     url: 'https://chat.stackoverflow.com/rooms/' + room,
@@ -136,11 +139,20 @@ function sendChatMessage(msg) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: 'text=' + encodeURIComponent(msg.trim()) + '&fkey=' + fkey,
         onload: function (r) {
-		  console.log("Reported to Queen"); //Change tp icon color
+			if (cb) cb(r);
         }
       });
     }
   });
+}
+
+function handleResponse(r, commentId) {
+	if (r.status === 200) {
+		addSnack("Reported to Queen!", true);
+		$("#comment-" + commentId + " .comment-queen-feedback-icon").addClass("queen-feedback-sent");
+	}
+	else
+		addSnack("Failed to report!", false);
 }
 
 function getQueenFeedbackElement() {
@@ -174,12 +186,18 @@ function getDDWithText(report, description) {
 
 	anchor.addEventListener("click", ev => {
 		let cId = $(ev.target).parents(".comment").attr("data-comment-id");
-		validateFeedbackRequired(getCommentUrl(cId), report);
+		validateFeedbackRequired(getCommentUrl(cId), report, cId);
 		//sendChatMessage(feedbackString + getCommentUrl(cId) + " " + report);
 	});
 
 	result.appendChild(anchor);
 	return result;
+}
+
+function addSnack(message, isSuccessMessage) {
+	let color = "#" + (isSuccessMessage ? "00690c" : "ba1701");  //padding 10px
+	
+	displayToaster(message, color);
 }
 
 function getOptions() {
@@ -202,3 +220,39 @@ function getOptions() {
 		}
 	];
 }
+
+//Stolen from AF and slightly altered; Thanks Rob ;)
+function displayToaster(message, colour, textColour, duration) {
+	let possWrapper = document.getElementById("snackbar");
+	let popupWrapper = possWrapper ? $(possWrapper) : $('<div>').addClass('hide').hide().attr('id', 'snackbar');
+	let popupDelay = 2000;
+	let toasterTimeout = null;
+	let toasterFadeTimeout = null;
+	
+	let div = $('<div>')
+		.css({
+		'background-color': colour,
+		'padding': '10px'
+	})
+		.text(message);
+	if (textColour) {
+		div.css('color', textColour);
+	}
+	popupWrapper.append(div);
+	popupWrapper.removeClass('hide').addClass('show').show();
+	function hidePopup() {
+		popupWrapper.removeClass('show').addClass('hide');
+		toasterFadeTimeout = setTimeout(function () {
+			popupWrapper.empty().hide();
+		}, 1000);
+	}
+	if (toasterFadeTimeout) {
+		clearTimeout(toasterFadeTimeout);
+	}
+	if (toasterTimeout) {
+		clearTimeout(toasterTimeout);
+	}
+	toasterTimeout = setTimeout(hidePopup, duration === undefined ? popupDelay : duration);
+}
+
+
