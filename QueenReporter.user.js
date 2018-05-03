@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.5
+// @version      0.5.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -71,7 +71,7 @@ function checkPopup(xhr) {
 }
 
 function checkCommentReload(xhr) {
-    let matches = /posts\/(\d+)\/comments\?_=\d+/.exec(xhr.responseURL);
+    let matches = /posts\/(\d+)(\/comments\?_=\d+)?/.exec(xhr.responseURL);
     if (matches !== null && xhr.status === 200) {
 		let postId = matches[1];
 		let post = document.getElementById("answer-" + postId) || document.getElementById("question");
