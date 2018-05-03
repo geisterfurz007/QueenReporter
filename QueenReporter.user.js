@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.5.1
+// @version      0.5.2
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -31,7 +31,6 @@ const feedbackString = "@Queen feedback ";
 	GM_addStyle(".comment-queen-feedback-icon::after {content: \"🐝\"} .comment-queen-feedback-icon.queen-feedback-sent::after {content: \"🍯\"} .comment-queen-feedback-icon dl {display: inline-block} .comment-queen-feedback-icon.queen-popup-closed dl {display:none}");
 
 	window.addEventListener("click", ev => {
-        console.log(ev.target.classList.contains("comment-queen-feedback-icon"));
         if (ev.target.classList.contains("comment-queen-feedback-icon")) {
             ev.target.classList.toggle("queen-popup-closed");
         } else {
@@ -71,7 +70,7 @@ function checkPopup(xhr) {
 }
 
 function checkCommentReload(xhr) {
-    let matches = /posts\/(\d+)(\/comments\?_=\d+)?/.exec(xhr.responseURL);
+    let matches = /posts\/(\d+)\/comments(\?_=\d+)?/.exec(xhr.responseURL);
     if (matches !== null && xhr.status === 200) {
 		let postId = matches[1];
 		let post = document.getElementById("answer-" + postId) || document.getElementById("question");
