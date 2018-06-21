@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.5.2
+// @version      0.5.2.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -90,6 +90,13 @@ function checkReport(event) { //event just in case it might be needed in the fut
 			validateFeedbackRequired(link, "tp", id);
 		} else if (flagName.indexOf("no longer") > -1) {
 			// sendChatMessage(feedbackString + link + " nc");
+			
+			
+			
+			return; //UNCOMMENT THIS LINE AFTER FINISHING THE NLN/NC/FP DIALOG!
+			
+			
+			
 			validateFeedbackRequired(link, "nc", id);
 		}
 	}
@@ -108,7 +115,7 @@ function validateFeedbackRequired(commentUrl, feedback, commentId) {
 
 	if (feedback === "tp")
 		return sendFeedback();
-
+	
 	GM.xmlHttpRequest({
 		method: "GET",
 		url: "http://api.higgs.sobotics.org/Reviewer/Check?contentUrl=" + encodeURIComponent(commentUrl),
