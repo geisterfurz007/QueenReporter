@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.5.2.1
+// @version      0.5.3
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	https://stackoverflow.com/*
