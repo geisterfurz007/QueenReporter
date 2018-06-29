@@ -214,11 +214,11 @@ function getOptions() {
 		},
 		{
 			report: "nc",
-			desc: "No longer needed"
+			desc: "Not constructive"
 		},
 		{
 			report: "fp",
-			desc: "Constructive"
+			desc: "Not harmful"
 		},
 		{
 			report: "sk",
