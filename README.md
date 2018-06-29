@@ -27,5 +27,5 @@ This was written and tested with Tampermonkey 4.6.5757. If you are using Greasem
 
 ## Todo
 
- - [ ] Get consent about positioning of the icon and move if needed
+ - [x] Get consent about positioning of the icon and move if needed
  - [ ] Only show icon when the mouse is over the comment like upvote and flag icon
