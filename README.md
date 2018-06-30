@@ -12,7 +12,9 @@ When you click on it, you can give a quick feedback in the popup. This will NOT 
 
 ![](https://i.imgur.com/p4q0Zks.jpg)
 
-Further automatic feedback will be sent when flagging a comment. Chosing one using the icon is not necessary after!
+Further automatic feedback will be sent when flagging a comment. Choosing one using the icon is not necessary after!  
+When flagging a post as "No longer needed", a dialog will show up asking whether nc should be sent or not (in which case fp will be sent).  
+This dialog was introduced (quite a bit) after and because of this message: https://chat.stackoverflow.com/transcript/message/42821649#42821649
 
 ### Chrome / Firefox
 
