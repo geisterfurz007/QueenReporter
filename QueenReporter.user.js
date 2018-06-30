@@ -62,7 +62,6 @@ function addXHRListener(callback) {
 }
 
 function checkPopup(xhr) {
-	console.log("request has been made: ", xhr.responseURL);
 	let matches = /flags\/comments\/\d+\/popup\?_=\d+/.exec(xhr.responseURL);
 	if (matches !== null && xhr.status === 200) {
 		$(".popup-submit").on("click", checkReport);
@@ -90,7 +89,7 @@ function checkReport(event) { //event just in case it might be needed in the fut
 			validateFeedbackRequired(link, "tp", id);
 		} else if (flagName.indexOf("no longer") > -1) {
 			// sendChatMessage(feedbackString + link + " nc");
-			
+
 			
 			
 			return; //UNCOMMENT THIS LINE AFTER FINISHING THE NLN/NC/FP DIALOG!
