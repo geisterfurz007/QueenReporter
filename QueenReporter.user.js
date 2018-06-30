@@ -36,6 +36,11 @@ const feedbackString = "@Queen feedback ";
         } else {
             $(".comment-queen-feedback-icon").addClass("queen-popup-closed");
         }
+		
+		if ($(ev.target).parents(".queen-yay-nay-popup").length = 0) { //click outside of the dialog
+			closeYayNayDialogs();
+		}
+		
     });
     addQuickFeedback();
 
@@ -85,20 +90,45 @@ function checkReport(event) { //event just in case it might be needed in the fut
 		let link = getCommentUrl(id);
 		let flagName = results[0].innerHTML;
 		if (flagName.indexOf("rude") > -1) {
-			// sendChatMessage(feedbackString + link + " tp");
 			validateFeedbackRequired(link, "tp", id);
 		} else if (flagName.indexOf("no longer") > -1) {
-			// sendChatMessage(feedbackString + link + " nc");
-
-			
-			
-			return; //UNCOMMENT THIS LINE AFTER FINISHING THE NLN/NC/FP DIALOG!
-			
-			
-			
-			validateFeedbackRequired(link, "nc", id);
+			showYayNayDialog(id, link);
 		}
 	}
+}
+
+function showYayNayDialog(commentId, link) {
+	
+	let doFeedback = (feedback) => {
+		validateFeedbackRequired(link, feedback, commentId);
+		closeYayNayDialogs();
+	}
+	
+	let target = $("#comment-" + commentId).parents("div.comments");
+	
+	let popup = $("<div>").addClass("popup responsively-horizontally-vertically-centered-legacy-popup queen-yay-nay-popup").css("display", "block");
+	let close = $("<div>").addClass("popup-close").append(
+		$("<a>").text("×").click(() => closeYayNayDialogs())
+	);
+	let title = $("<div>").addClass("popup-title handle").append(
+		$("<h2>").text("Is this comment considered not constructive?")
+	);
+	let form = $("<form>").append(
+		$("<div>").addClass("popup-actions").append(
+			$("<div>").css("float", "right").append(
+				$("<input>").attr("type", "button").attr("value", "YAY!").click(() => doFeedback("nc"))
+			)								.append(
+				$("<input>").attr("type", "button").attr("value", "NAY!").click(() => doFeedback("fp")).css("margin-left", "10px")
+			)
+		)
+	);
+
+	popup.append(close, title, form);
+	target.append(popup);
+}
+
+function closeYayNayDialogs() {
+	$(".queen-yay-nay-popup").remove();
 }
 
 function getCommentUrl(commentId) {
