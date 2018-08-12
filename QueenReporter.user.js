@@ -16,6 +16,8 @@ const test_room = 167908;
 
 const feedbackString = "@Queen feedback ";
 
+let commentId = undefined;
+
 (function() {
 
 	'use strict';
@@ -42,6 +44,7 @@ const feedbackString = "@Queen feedback ";
 		}
 		
     });
+	addFlagIdListener();
     addQuickFeedback();
 
     //Listener to react to the opened comment flagging popup
@@ -51,6 +54,12 @@ const feedbackString = "@Queen feedback ";
 	//Because of that we need another request listener that checks when the comments for a certain post are requested so they can be added after that.
     addXHRListener(checkCommentReload);
 })();
+
+function addFlagIdListener() {
+	$("a.comment-flag").click(function(ev) {
+		commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
+	});
+}
 
 function addQuickFeedback(preSelector) {
 	preSelector = preSelector || "";
@@ -69,7 +78,7 @@ function addXHRListener(callback) {
 function checkPopup(xhr) {
 	let matches = /flags\/comments\/\d+\/popup\?_=\d+/.exec(xhr.responseURL);
 	if (matches !== null && xhr.status === 200) {
-		$(".popup-submit").on("click", checkReport);
+		$(".js-modal-submit").on("click", checkReport);
 	}
 }
 
@@ -84,12 +93,13 @@ function checkCommentReload(xhr) {
 }
 
 function checkReport(event) { //event just in case it might be needed in the future
-	let results = $(".action-list > .action-selected span.action-name");
+	let results = $("input[name='comment-flag-type']:checked");
 	if (results.length > 0) {
-		let id = $(".popup-flag-comment").attr("id").split("-")[2];
-		let link = getCommentUrl(id);
-		let flagName = results[0].innerHTML;
-		if (flagName.indexOf("rude") > -1) {
+		let link = getCommentUrl(commentId);
+		let flagName = results[0].id;
+		console.log(flagName);
+		return;
+		if (flagName.indexOf("Rude") > -1) {
 			validateFeedbackRequired(link, "tp", id);
 		} else if (flagName.indexOf("no longer") > -1) {
 			showYayNayDialog(id, link);
