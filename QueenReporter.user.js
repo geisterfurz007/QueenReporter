@@ -38,11 +38,6 @@ let commentId = undefined;
         } else {
             $(".comment-queen-feedback-icon").addClass("queen-popup-closed");
         }
-		
-		if ($(ev.target).parents(".queen-yay-nay-popup").length = 0) { //click outside of the dialog
-			closeYayNayDialogs();
-		}
-		
     });
 	addFlagIdListener();
     addQuickFeedback();
@@ -55,8 +50,10 @@ let commentId = undefined;
     addXHRListener(checkCommentReload);
 })();
 
-function addFlagIdListener() {
-	$("a.comment-flag").click(function(ev) {
+function addFlagIdListener(preSelector) {
+	preSelector = (preSelector || "").trim() + " ";
+	
+	$(preSelector + "a.comment-flag").click(function(ev) {
 		commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
 	});
 }
@@ -89,6 +86,7 @@ function checkCommentReload(xhr) {
 		let post = document.getElementById("answer-" + postId) || document.getElementById("question");
 		let preSelector = "#" + post.getAttribute("id");
         addQuickFeedback(preSelector);
+		addFlagIdListener(preSelector);
     }
 }
 
@@ -97,49 +95,16 @@ function checkReport(event) { //event just in case it might be needed in the fut
 	if (results.length > 0) {
 		let link = getCommentUrl(commentId);
 		let flagName = results[0].id;
-		console.log(flagName);
-		return;
 		if (flagName.indexOf("Rude") > -1) {
-			validateFeedbackRequired(link, "tp", id);
-		} else if (flagName.indexOf("no longer") > -1) {
-			showYayNayDialog(id, link);
+			validateFeedbackRequired(link, "tp", commentId);
+		} else if (flagName.indexOf("Unwelcoming") > -1) {
+			validateFeedbackRequired(link, "nc", commentId);
+		} else if (flagName.indexOf("NoLongerNeeded") > -1) { //Modflag shouldn't really feedback fp; 
+			validateFeedbackRequired(link, "fp", commentId);
 		}
 	}
 }
 
-function showYayNayDialog(commentId, link) {
-	
-	let doFeedback = (feedback) => {
-		validateFeedbackRequired(link, feedback, commentId);
-		closeYayNayDialogs();
-	}
-	
-	let target = $("#comment-" + commentId).parents("div.comments");
-	
-	let popup = $("<div>").addClass("popup responsively-horizontally-vertically-centered-legacy-popup queen-yay-nay-popup").css("display", "block");
-	let close = $("<div>").addClass("popup-close").append(
-		$("<a>").text("×").click(() => closeYayNayDialogs())
-	);
-	let title = $("<div>").addClass("popup-title handle").append(
-		$("<h2>").text("Is this comment considered not constructive?")
-	);
-	let form = $("<form>").append(
-		$("<div>").addClass("popup-actions").append(
-			$("<div>").css("float", "right").append(
-				$("<input>").attr("type", "button").attr("value", "YAY!").click(() => doFeedback("nc"))
-			)								.append(
-				$("<input>").attr("type", "button").attr("value", "NAY!").click(() => doFeedback("fp")).css("margin-left", "10px")
-			)
-		)
-	);
-
-	popup.append(close, title, form);
-	target.append(popup);
-}
-
-function closeYayNayDialogs() {
-	$(".queen-yay-nay-popup").remove();
-}
 
 function getCommentUrl(commentId) {
 	let id = "#comment-"+commentId;
@@ -147,6 +112,8 @@ function getCommentUrl(commentId) {
 }
 
 function validateFeedbackRequired(commentUrl, feedback, commentId) {
+
+	console.log("Validating", commentUrl, feedback, commentId);
 
 	function sendFeedback() {
 		sendChatMessage(feedbackString + commentUrl + " " + feedback, r => handleResponse(r, commentId));
@@ -162,6 +129,7 @@ function validateFeedbackRequired(commentUrl, feedback, commentId) {
 //		data: "contentUrl=" + encodeURIComponent(commentUrl),
 		onload: function (r) {
 			let reports = JSON.parse(r.responseText);
+			console.log("Reports:", reports);
 			if (reports.length > 0 && reports.some(report => report.dashboard === "Hydrant")) {
 				sendFeedback();
 			}
@@ -178,12 +146,14 @@ function sendChatMessage(msg, cb) {
     url: 'https://chat.stackoverflow.com/rooms/' + room,
     onload: function (response) {
       var fkey = response.responseText.match(/hidden" value="([\dabcdef]{32})/)[1];
+	  console.log("Fkey retrieved: ", fkey);
       GM.xmlHttpRequest({
         method: 'POST',
         url: 'https://chat.stackoverflow.com/chats/' + room + '/messages/new',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: 'text=' + encodeURIComponent(msg.trim()) + '&fkey=' + fkey,
         onload: function (r) {
+			console.log("Message sent");
 			if (cb) cb(r);
         }
       });
@@ -192,6 +162,7 @@ function sendChatMessage(msg, cb) {
 }
 
 function handleResponse(r, commentId) {
+	console.log("Handling response");
 	if (r.status === 200) {
 		addSnack("Reported to Queen!", true);
 		$("#comment-" + commentId + " .comment-queen-feedback-icon").addClass("queen-feedback-sent");
