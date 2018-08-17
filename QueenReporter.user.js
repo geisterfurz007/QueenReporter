@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.8
+// @version      0.8.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -61,8 +61,6 @@ function addFlagIdListener(preSelector) {
 			mutations.forEach(mutation => {
 				if (!mutation.addedNodes) return;
 				
-				console.log(mutation.addedNodes);
-				
 				let nodeArray = Array.from(mutation.addedNodes);
 				
 				if (nodeArray.some(node => node.classList.contains("s-modal-overlay"))) {
@@ -119,7 +117,6 @@ function checkCommentReload(xhr) {
 
 function checkReport(event) {
 	if (!$("#queenAutoFeedbackEnabled").is(":checked")) {
-		console.log("Autofeedback disabled");
 		return;
 	}
 	
@@ -145,8 +142,6 @@ function getCommentUrl(commentId) {
 
 function validateFeedbackRequired(commentUrl, feedback, commentId) {
 
-	console.log("Validating", commentUrl, feedback, commentId);
-
 	function sendFeedback() {
 		sendChatMessage(feedbackString + commentUrl + " " + feedback, r => handleResponse(r, commentId));
 	}
@@ -161,7 +156,6 @@ function validateFeedbackRequired(commentUrl, feedback, commentId) {
 //		data: "contentUrl=" + encodeURIComponent(commentUrl),
 		onload: function (r) {
 			let reports = JSON.parse(r.responseText);
-			console.log("Reports:", reports);
 			if (reports.length > 0 && reports.some(report => report.dashboard === "Hydrant")) {
 				sendFeedback();
 			}
@@ -178,14 +172,12 @@ function sendChatMessage(msg, cb) {
     url: 'https://chat.stackoverflow.com/rooms/' + room,
     onload: function (response) {
       var fkey = response.responseText.match(/hidden" value="([\dabcdef]{32})/)[1];
-	  console.log("Fkey retrieved: ", fkey);
       GM.xmlHttpRequest({
         method: 'POST',
         url: 'https://chat.stackoverflow.com/chats/' + room + '/messages/new',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         data: 'text=' + encodeURIComponent(msg.trim()) + '&fkey=' + fkey,
         onload: function (r) {
-			console.log("Message sent");
 			if (cb) cb(r);
         }
       });
@@ -194,7 +186,6 @@ function sendChatMessage(msg, cb) {
 }
 
 function handleResponse(r, commentId) {
-	console.log("Handling response");
 	if (r.status === 200) {
 		addSnack("Reported to Queen!", true);
 		$("#comment-" + commentId + " .comment-queen-feedback-icon").addClass("queen-feedback-sent");
