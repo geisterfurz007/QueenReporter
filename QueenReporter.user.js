@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.7.1
+// @version      0.8
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -56,6 +56,32 @@ function addFlagIdListener(preSelector) {
 	
 	$(preSelector + "a.comment-flag").click(function(ev) {
 		commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
+		
+		let observer = new MutationObserver(mutations => {
+			mutations.forEach(mutation => {
+				if (!mutation.addedNodes) return;
+				
+				console.log(mutation.addedNodes);
+				
+				let nodeArray = Array.from(mutation.addedNodes);
+				
+				if (nodeArray.some(node => node.classList.contains("s-modal-overlay"))) {
+					$("#modal-base button.js-modal-close")
+						.after($("<label><input id='queenAutoFeedbackEnabled' type='checkbox' checked='checked'>Queen Autofeedback enabled</label>"));
+						
+					observer.disconnect();
+				}
+				
+			})
+		});
+		
+		observer.observe(document.body, {
+			  childList: true
+			  , subtree: true
+			  , attributes: false
+			  , characterData: false
+		});
+		
 	});
 }
 
@@ -91,7 +117,12 @@ function checkCommentReload(xhr) {
     }
 }
 
-function checkReport(event) { //event just in case it might be needed in the future
+function checkReport(event) {
+	if (!$("#queenAutoFeedbackEnabled").is(":checked")) {
+		console.log("Autofeedback disabled");
+		return;
+	}
+	
 	let results = $("input[name='comment-flag-type']:checked");
 	if (results.length > 0) {
 		let link = getCommentUrl(commentId);
