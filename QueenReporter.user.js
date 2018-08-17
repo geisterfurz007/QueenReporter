@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.7
+// @version      0.7.1
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -35,6 +35,7 @@ let commentId = undefined;
 	window.addEventListener("click", ev => {
         if (ev.target.classList.contains("comment-queen-feedback-icon")) {
             ev.target.classList.toggle("queen-popup-closed");
+			commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
         } else {
             $(".comment-queen-feedback-icon").addClass("queen-popup-closed");
         }
