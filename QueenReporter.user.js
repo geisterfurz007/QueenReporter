@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.8.1
+// @version      0.8.2
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -54,7 +54,7 @@ let commentId = undefined;
 function addFlagIdListener(preSelector) {
 	preSelector = (preSelector || "").trim() + " ";
 	
-	$(preSelector + "a.comment-flag").click(function(ev) {
+	$(preSelector + "button.comment-flag").click(function(ev) {
 		commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
 		
 		let observer = new MutationObserver(mutations => {
