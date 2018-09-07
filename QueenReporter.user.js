@@ -1,7 +1,7 @@
 ﻿// ==UserScript==
 // @name         Queen Reporter
 // @namespace    https://github.com/geisterfurz007
-// @version      0.8.2
+// @version      0.8.3
 // @description  Quick feedback to Heat Detector
 // @author       geisterfurz007
 // @include	 https://stackoverflow.com/*
@@ -54,17 +54,17 @@ let commentId = undefined;
 function addFlagIdListener(preSelector) {
 	preSelector = (preSelector || "").trim() + " ";
 	
-	$(preSelector + "button.comment-flag").click(function(ev) {
+	$(preSelector + "div.comment-flagging").click(function(ev) {
 		commentId = $(ev.target).parents("li.comment").attr("data-comment-id");
 		
 		let observer = new MutationObserver(mutations => {
 			mutations.forEach(mutation => {
 				if (!mutation.addedNodes) return;
 				
-				let nodeArray = Array.from(mutation.addedNodes);
+				let nodeArray = Array.from(mutation.addedNodes); 
 				
 				if (nodeArray.some(node => node.classList.contains("s-modal-overlay"))) {
-					$("#modal-base button.js-modal-close")
+					$("#modal-base div.ai-center button.js-modal-close")
 						.after($("<label><input id='queenAutoFeedbackEnabled' type='checkbox' checked='checked'>Queen Autofeedback enabled</label>"));
 						
 					observer.disconnect();
